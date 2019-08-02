@@ -47,7 +47,7 @@ semaine36.md
 1. générer le calendrier
 2. probleme des périodes de chaque année...
 
-1. générer les dossiers de parents : 
+1. générer les dossiers de parents :
 2. générer les fichiers .md de chaque semaine de la période
     1. découper en dates proprement chaque période :
     2. quelle semaine dans quelle période ? :
@@ -66,6 +66,8 @@ semaine36.md
 
 ## CORRECTIFS
 * corriger bug dates : lundi  29 avril 2020 : FAUX c'est le jour de l'année
-    d'avant
-    Les dates de 2020 doivent toutes êtres fausses de ce fait...
+  d'avant.
+
+  Les dates de 2020 doivent toutes êtres fausses de ce fait...
+
   Correction : Oubli de changer une date en dur
