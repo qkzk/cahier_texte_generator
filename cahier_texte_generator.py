@@ -5,67 +5,10 @@
 ---
 title: "Générateur de Cahier de texte"
 author: "qkzk"
-version: "1.0"
+version: "1.1"
 date: "2019/08/02"
 ---
 
-Genere un cahier de texte pour être hébergé sur Github
-
-Exécutez le script directement avec ou sans année en argument.
-Il est préférable de modifier deux variables dans les sources :
-
-    * les dates des périodes scolaires
-    * les contenus de chaque journée
-
-    J'imagine que si vous lisez ceci, vous êtes capable de le faire...
-
-
-.
-└── 2019
-    ├── periode1
-    |   ├── semaine_36.md
-    |   ...
-    │   └── semaine_41.md
-    ...
-    └── periode5
-        ├── semaine_36.md
-        ...
-        └── semaine_41.md
-
-
-semaine36.md
->
->  # Semaine 35 - du Lundi 26 août au Dimanche 01 septembre
->
->  ## Lundi 3 septembre
->      **8h-9h30** _salle 213_ : exos bidules
->  ## Mardi 4 septembre
-
-TODO
-* intégrer un calendar avec lien cliquables vers le bon fichier
-    pour intégration dans le site... plus difficile mais p-ê worth it
-    utiliser htmlcalendar et htmlcalendarclass je sais pas quoi
-
-    pas evident de rendre chaque jour cliquable vers son jour en question...
-    faut p-ê du JS pour créer les liens :(
-
-    https://www.guru99.com/calendar-in-python.html
-    https://docs.python.org/fr/3/library/calendar.html
-    https://stackabuse.com/introduction-to-the-python-calendar-module/
-    https://www.w3resource.com/python/module/calendar/html-calendar-formatmonth.php
-
-DONE
-1. générer le calendrier
-2. probleme des périodes de chaque année...
-
-1. générer les dossiers de parents : DONE
-2. générer les fichiers .md de chaque semaine de la période
-    1. découper en dates proprement chaque période : DONE
-    2. quelle semaine dans quelle période ? : DONE
-    3. créer les fichiers .md : DONE
-3. peupler les fichiers .md
-    2. ajouter le titre : semaine bidule dates machin DONE
-    2. ajouter les découpages par jour DONE
 '''
 
 import datetime
@@ -74,6 +17,9 @@ import os
 import sys
 from datetime import timedelta
 from pprint import pprint
+
+import calendar
+from calendar import HTMLCalendar
 
 year = 2019
 liste_periode = range(1, 6)
@@ -144,7 +90,7 @@ for period_nb, string_fin_periode in dic_fin_periodes.items():
     )
     liste_fin_periode.append(date_fin_periode)
 
-dic_semaine_periode = {}
+# dic_semaine_periode = {}
 
 
 # FONCTIONS
@@ -184,7 +130,7 @@ def create_file_content(sem):
         current_year = current_year + 1
 
     # on récupère la liste des dates de la semaine
-    list_days = get_start_and_end_date_from_calendar_week(2019, sem - 1)
+    list_days = get_start_and_end_date_from_calendar_week(current_year, sem - 1)
 
     # on formate toutes les dates pour énumérer plus facilement
     list_string_day = list(map(format_string_jour, list_days))
@@ -266,7 +212,7 @@ def create_cahier_texte():
     # on peuple les dossiers de période
     for period_nb, v in dic_fin_periodes.items():
         # on crée une liste pour chaque période
-        dic_semaine_periode[period_nb] = []
+        # dic_semaine_periode[period_nb] = []
         # on compte les semaines entre les dates
 
         try:
@@ -302,6 +248,124 @@ def create_cahier_texte():
             return
 
 
+class EventsMonthCalendar(HTMLCalendar):
+    '''
+    Classe qui étend HTMLCalendar en formattant les jours
+    Utilisée pour générer une table d'un mois dont les jours pointent
+    vers une page de la semaine.
+    Les pages étant rangées dans des sous dossiers par période
+    '''
+
+    def __init__(self, year, month, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.month = month
+        self.year = year
+        self.start_url = "https://github.com/qkzk/cours/blob/master/"
+        self.end_url = ".md"
+
+    def which_day(self, day):
+        '''
+        Renvoie la date du jour en question
+        @param day: (int) le jour
+        @return: (datetime) datetime du jour
+        '''
+        return datetime.datetime(self.year, self.month, day)
+
+    def which_period(self, day):
+        '''
+        Renvoie la période du jour en question
+        @param day: (int) le numéro du jour
+        @return: (int) le numéro de la période
+        '''
+        theday = self.which_day(day)
+        for nb_period, date_fin_period in enumerate(liste_fin_periode):
+            if theday < date_fin_period:
+                return nb_period
+
+    def which_weeknumber(self, day):
+        '''
+        Renvoie le numéro de la semaine correspondante
+        @param day: (int) le numéro du jour
+        @return: (int) le numéro de la semaine
+        '''
+        theday = self.which_day(day)
+        return theday.isocalendar()[1]
+
+    def formatURL(self, nb_period, nb_week):
+        """
+        Formatte une url pour atteindre mon repo
+
+        https://github.com/qkzk/cours/blob/master/2019/periode_5/semaine_18.md
+
+        @param nb_period: (int) le numéro de la période
+        @param nb_week: (int) le numéro de la semaine
+        @return: (str) l'url correspondant à cette semaine
+
+        TODO modifier le nom de l'auteur et du repo pour être plus générique
+        """
+        school_year = self.year if nb_week > 30 else self.year - 1
+        middle_url = str(school_year) + "/periode_" + str(nb_period) + \
+            "/semaine_" + str(nb_week)
+        return self.start_url + middle_url + self.end_url
+
+    def formatday(self, day, weekday):
+        """
+        Return a day as a table cell.
+        @param day: (int) le numero du jour
+        @param weekday: (int) le numéro du jour de la semaine
+        """
+        if day == 0:
+            return '<td class="noday">&nbsp;</td>'  # day outside month
+        else:
+            nb_period = self.which_period(day)
+            nb_week = self.which_weeknumber(day)
+            string_url = self.formatURL(nb_period, nb_week)
+            return '<td class="{0}"><a href="{1}">{2}</a></td>'.format(
+                self.cssclasses[weekday], string_url, day
+            )
+
+
+def generateMonthes():
+    '''
+    Génère du contenu HTML dans une string
+    Pour être affiché dans github
+
+    @return: (str) une page HTML avec un calendrier de l'année scolaire.
+        Chaque jour est un lien vers une page github
+    '''
+    html_string = ''
+
+    for month in range(9, 13):
+        html_string += "\n" * 3
+        html_string += EventsMonthCalendar(year, month).formatmonth(
+            year, month)
+
+    for month in range(1, 7):
+        html_string += "\n" * 3
+        html_string += EventsMonthCalendar(year + 1, month).formatmonth(
+            year + 1, month)
+
+    return html_string
+
+
+def write_html_monthes():
+    '''
+    Ecrit le fichier README.md avec le contenu HTML à l'adresse :
+    ./calendrier/2019/README.md
+
+    Utilise les méthodes generateMonthes et la classe EventsMonthCalendar
+    @return: (None)
+    SE: crée un fichier écrit dedans.
+    '''
+    # 0 ---> ./calendrier/2019
+    path = default_path_year
+    filename = 'README.md'
+    with open(os.path.join(path, filename), 'w+') as f:
+        content = generateMonthes()
+        f.write(content)
+        return
+
+
 if __name__ == '__main__':
     args = sys.argv
     if len(args) > 1:
@@ -327,4 +391,7 @@ if __name__ == '__main__':
     default_path_year = "./calendrier/{}/".format(year)
     default_path_md = "./calendrier/{}/periode_".format(year)
     default_file_name = "semaine_{}.md"
+    # on crée les dossiers et les fichiers de la semaine
     create_cahier_texte()
+    # on crée les liens depuis un calendrier
+    write_html_monthes()
