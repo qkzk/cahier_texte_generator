@@ -19,14 +19,23 @@ J'imagine que si vous lisez ceci, vous êtes capable de le faire...
 
 .
 └── 2019
+
     ├── periode1
+
     |   ├── semaine_36.md
+
     |   ...
+
     │   └── semaine_41.md
+
     ...
+
     └── periode5
+
         ├── semaine_36.md
+
         ...
+        
         └── semaine_41.md
 
 
