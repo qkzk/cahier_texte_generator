@@ -53,7 +53,7 @@ semaine36.md
     2. quelle semaine dans quelle période ? : DONE
     3. créer les fichiers .md : DONE
 3. peupler les fichiers .md
-    2. ajouter le titre : semaine bidule dates machin DONE
+    1. ajouter le titre : semaine bidule dates machin DONE
     2. ajouter les découpages par jour DONE
 4. Version 1.1
    intégrer un calendar avec lien cliquables vers le bon fichier
