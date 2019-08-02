@@ -47,14 +47,14 @@ semaine36.md
 1. générer le calendrier
 2. probleme des périodes de chaque année...
 
-1. générer les dossiers de parents : DONE
+1. générer les dossiers de parents : 
 2. générer les fichiers .md de chaque semaine de la période
-    1. découper en dates proprement chaque période : DONE
-    2. quelle semaine dans quelle période ? : DONE
-    3. créer les fichiers .md : DONE
+    1. découper en dates proprement chaque période :
+    2. quelle semaine dans quelle période ? :
+    3. créer les fichiers .md :
 3. peupler les fichiers .md
-    1. ajouter le titre : semaine bidule dates machin DONE
-    2. ajouter les découpages par jour DONE
+    1. ajouter le titre : semaine bidule dates machin
+    2. ajouter les découpages par jour
 4. Version 1.1
    intégrer un calendar avec lien cliquables vers le bon fichier
     utilise htmlcalendar
