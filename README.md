@@ -55,7 +55,7 @@ semaine36.md
 3. peupler les fichiers .md
     1. ajouter le titre : semaine bidule dates machin
     2. ajouter les découpages par jour
-4. Version 1.1
+4. **Version 1.1 :**
    intégrer un calendar avec lien cliquables vers le bon fichier
     utilise htmlcalendar
     sources :
