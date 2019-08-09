@@ -31,6 +31,53 @@ dic_fin_periodes = {
     4: "27/04/2020",
     5: "06/07/2020"
 }
+
+# constants
+TEXT_COLORS = {
+    "PURPLE": '\033[95m',
+    "CYAN": '\033[96m',
+    "DARKCYAN": '\033[36m',
+    "BLUE": '\033[94m',
+    "GREEN": '\033[92m',
+    "YELLOW": '\033[93m',
+    "RED": '\033[91m',
+    "BOLD": '\033[1m',
+    "UNDERLINE": '\033[4m',
+    "END": '\033[0m',
+}
+
+
+WELCOME_BANNER = """Bienvenue dans ...
+
+
+:'######:::::'###::::'##::::'##:'####:'########:'########::
+'##... ##:::'## ##::: ##:::: ##:. ##:: ##.....:: ##.... ##:
+ ##:::..:::'##:. ##:: ##:::: ##:: ##:: ##::::::: ##:::: ##:
+ ##:::::::'##:::. ##: #########:: ##:: ######::: ########::
+ ##::::::: #########: ##.... ##:: ##:: ##...:::: ##.. ##:::
+ ##::: ##: ##.... ##: ##:::: ##:: ##:: ##::::::: ##::. ##::
+. ######:: ##:::: ##: ##:::: ##:'####: ########: ##:::. ##:
+:......:::..:::::..::..:::::..::....::........::..:::::..::
+'########:'########:'##::::'##:'########:'########:
+... ##..:: ##.....::. ##::'##::... ##..:: ##.....::
+::: ##:::: ##::::::::. ##'##:::::: ##:::: ##:::::::
+::: ##:::: ######:::::. ###::::::: ##:::: ######:::
+::: ##:::: ##...:::::: ## ##:::::: ##:::: ##...::::
+::: ##:::: ##:::::::: ##:. ##::::: ##:::: ##:::::::
+::: ##:::: ########: ##:::. ##:::: ##:::: ########:
+:::..:::::........::..:::::..:::::..:::::........::
+:::'###::::'##::::'##:'########::'#######::
+::'## ##::: ##:::: ##:... ##..::'##.... ##:
+:'##:. ##:: ##:::: ##:::: ##:::: ##:::: ##:
+'##:::. ##: ##:::: ##:::: ##:::: ##:::: ##:
+ #########: ##:::: ##:::: ##:::: ##:::: ##:
+ ##.... ##: ##:::: ##:::: ##:::: ##:::: ##:
+ ##:::: ##:. #######::::: ##::::. #######::
+..:::::..:::.......::::::..::::::.......:::
+
+
+"""
+
 warning_periods_year = '''
 Generation du cahier de texte de l'année {}.
 
@@ -366,7 +413,12 @@ def write_html_monthes():
         return
 
 
+def color_text(text, color="BOLD"):
+    return TEXT_COLORS[color] + text + TEXT_COLORS["END"]
+
+
 if __name__ == '__main__':
+    print(color_text(WELCOME_BANNER, "DARKCYAN"))
     args = sys.argv
     if len(args) > 1:
         try:
@@ -374,12 +426,14 @@ if __name__ == '__main__':
             year = int(args[1])
             print(warning_periods_year.format(year))
             pprint(dic_fin_periodes)
-            reponse_annee = input("Voulez-vous continuer ? (y/N) : ")
+            reponse_annee = input(color_text(
+                color_text("Voulez-vous continuer ? (y/N) : ", "BOLD"), "RED"))
             if not reponse_annee == "y":
                 exit("Fin du programme, aucun calendrier n'a été généré")
             print(warning_emploi_du_temps)
             pprint(content_per_day)
-            reponse_edt = input("Voulez-vous continuer ? (y/N) : ")
+            reponse_edt = input(color_text(
+                color_text("Voulez-vous continuer ? (y/N) : ", "BOLD"), "RED"))
             if not reponse_edt == "y":
                 exit("Fin du programme, aucun calendrier n'a été généré")
             print()
@@ -387,6 +441,9 @@ if __name__ == '__main__':
             print(e)
             print("L'argument doit être une année, par exemple : 2019")
             raise e
+    else:
+        print("Aucune année fournie, on utilise l'année {} comme exemple"
+              .format(year))
     # l'user a tout compris on peut créer 45 fichiers :)
     default_path_year = "./calendrier/{}/".format(year)
     default_path_md = "./calendrier/{}/periode_".format(year)

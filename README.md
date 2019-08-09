@@ -39,8 +39,8 @@ semaine36.md
 >  ## Mardi 4 septembre
 
 ## TODO
-* Modifier l'url du repo pour qu'elle soit facilement éditable
 * Mettre tous les paramètre dans un fichier de config format yaml qu'on importe
+* Modifier l'url du repo pour qu'elle soit facilement éditable
 
 
 ## DONE
