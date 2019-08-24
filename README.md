@@ -7,9 +7,25 @@ date: "2019/08/02"
 
 Génère un cahier de texte pour être hébergé sur Github
 
-Exécutez le script directement avec ou sans année en argument.
-Il est préférable de modifier deux variables dans les sources :
+# HOWTO
 
+
+pas de venv
+pas de librairie
+
+
+Exécutez le script directement avec ou sans année en argument.
+
+
+juste exécuter le fichier :
+
+~~~
+$ python cahier_texte_generator.py
+~~~
+
+
+
+Il est préférable de modifier deux variables dans les sources :
 * les dates des périodes scolaires
 * les contenus de chaque journée
 * l'url de votre repo
