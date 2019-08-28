@@ -21,7 +21,10 @@ from pprint import pprint
 import calendar
 from calendar import HTMLCalendar
 
+from content_per_day import content_per_day
+
 year = 2019
+start_week = None
 liste_periode = range(1, 6)
 dic_fin_periodes = {
     0: "29/08/2019",
@@ -115,16 +118,6 @@ traduction = {
     "October":      "octobre",
     "November":     "novembre",
     "December":     "décembre",
-}
-
-content_per_day = {
-    0: "\n* 8h-8h55 - s213\n* 8h55-9h50 - s215\n* 10h-10h55 - s104\n",
-    1: "\n* 8h-8h55 - s213\n* 8h55-9h50 - s215\n* 10h-10h55 - s104\n",
-    2: "\n* 8h-8h55 - s213\n* 8h55-9h50 - s215\n* 10h-10h55 - s104\n",
-    3: "\n* 8h-8h55 - s213\n* 8h55-9h50 - s215\n* 10h-10h55 - s104\n",
-    4: "\n* 8h-8h55 - s213\n* 8h55-9h50 - s215\n* 10h-10h55 - s104\n",
-    5: "\n",
-    6: "\n",
 }
 
 
@@ -235,7 +228,7 @@ def create_md_file(period_nb, week_number):
         return
 
 
-def create_cahier_texte():
+def create_cahier_texte(start_week=None):
     '''
     Fonction principale qui crée les fichiers et les remplit pour chaque
     période et chaque semaine de chaque période.
@@ -269,6 +262,15 @@ def create_cahier_texte():
             date_fin = liste_fin_periode[period_nb + 1]
             semaine_debut_periode = date_debut.isocalendar()[1]
             semaine_fin_periode = date_fin.isocalendar()[1]
+            start_year_2 = 1
+
+            if start_week:
+                if start_week < semaine_debut_periode:
+                    # on débute après la nouvelle année civile
+                    start_year_2 = start_week
+                else:
+                    # on debute qq semaines après la rentrée
+                    semaine_debut_periode = start_week
 
             # on affiche un peu pour se repérer et voir l'avancée
             print('periode {}'.format(period_nb + 1), end=' - ')
@@ -424,6 +426,8 @@ if __name__ == '__main__':
         try:
             # on s'assure que l'user comprend qu'il va créer 45 fichiers ...
             year = int(args[1])
+            if len(args) > 2:
+                start_week = int(args[2])
             print(warning_periods_year.format(year))
             pprint(dic_fin_periodes)
             reponse_annee = input(color_text(
@@ -449,6 +453,6 @@ if __name__ == '__main__':
     default_path_md = "./calendrier/{}/periode_".format(year)
     default_file_name = "semaine_{}.md"
     # on crée les dossiers et les fichiers de la semaine
-    create_cahier_texte()
+    create_cahier_texte(start_week=start_week)
     # on crée les liens depuis un calendrier
     write_html_monthes()
