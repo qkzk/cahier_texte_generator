@@ -23,6 +23,12 @@ juste exécuter le fichier :
 $ python cahier_texte_generator.py
 ~~~
 
+## Usage courant
+
+On peut spécifier l'année scolaire de départ : 2019 pour 2019/2029
+ainsi que la semaine à partir de laquelle on veut mettre à jour le calendrier
+ainsi seuls les semaines après la semaine spécifiée seront modifiées.
+
 
 
 Il est préférable de modifier deux variables dans les sources :
@@ -79,6 +85,9 @@ semaine36.md
     https://docs.python.org/fr/3/library/calendar.html
     https://stackabuse.com/introduction-to-the-python-calendar-module/
     https://www.w3resource.com/python/module/calendar/html-calendar-formatmonth.php
+5. startweek : spécifier l'année de départ
+    TODO : utiliser automatiquement si l'année est entamée afin d'éviter toute
+    bévue quand on copie les fichiers.
 
 ## CORRECTIFS
 * corriger bug dates : lundi  29 avril 2020 : FAUX c'est le jour de l'année
