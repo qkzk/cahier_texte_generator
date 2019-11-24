@@ -5,6 +5,7 @@ import distutils.dir_util
 import os
 import os.path
 import subprocess
+from shutil import copyfile
 
 import importlib.util
 # colors module
@@ -55,27 +56,38 @@ def get_startweek():
             color.print_color(start_week_invalid_msg)
             color.print_color("Exiting", "red")
             exit(0)
-        if week > 52:
+        if start_week > 52:
             color.print_color(start_week_invalid_msg)
             color.print_color("Exiting", "red")
             exit(0)
     return start_week
 
 
-def clean_dest_folder(year, start_week):
+def get_range_weeks(start_week):
+    if start_week < 30:
+        weeks_first_year = range(0, 0)
+        weeks_second_year = range(start_week, 31)
+    else:
+        weeks_first_year = range(start_week, 53)
+        weeks_second_year = range(0, 30)
+    range_weeks = {
+        "weeks_first_year": weeks_first_year,
+        "weeks_second_year": weeks_second_year,
+        "weeks_first_year": weeks_first_year,
+        "weeks_second_year": weeks_second_year,
+    }
+    return range_weeks
+
+
+def clean_dest_folder(year, start_week, range_weeks):
     git_calendar_exists = os.path.isdir(gitcours_path + year)
     if git_calendar_exists:
-        if start_week < 30:
-            weeks_first_year = range(0, 0)
-            weeks_second_year = range(start_week, 31)
-        else:
-            weeks_first_year = range(start_week, 53)
-            weeks_second_year = range(0, 30)
 
         # vider le dossier
         for period in range(1, 6):
             for week in range(1, 53):
-                if week in weeks_first_year or week in weeks_second_year:
+                if week in range_weeks["weeks_first_year"]\
+                        or week in range_weeks["weeks_second_year"]:
                     try:
                         file = gitcours_path + year + \
                             "/periode_{}/semaine_{}.md".format(period, week)
@@ -85,13 +97,30 @@ def clean_dest_folder(year, start_week):
                         pass
 
 
-def copy_if_not_exist(year):
+def copy_if_not_exist(year, start_week, range_weeks):
     src = calendar_path + year
     dst = gitcours_path + year
 
-    lst = distutils.dir_util.copy_tree(src, dst, update=1)
-    for file in lst:
-        color.print_color(f"Copied : {file}", "white")
+    for period in range(1, 6):
+        for week in range(1, 53):
+            if week in range_weeks["weeks_first_year"]\
+                    or week in range_weeks["weeks_second_year"]:
+                src_week = src + "/periode_{}/semaine_{}.md".format(period,
+                                                                    week)
+                dst_week = dst + "/periode_{}/semaine_{}.md".format(period,
+                                                                    week)
+                dst_dir = dst + "/periode_{}/".format(period)
+                try:
+                    if not os.path.exists(dst_dir):
+                        os.makedirs(dst_dir)
+                        color.print_color(f"created directory : {dst_dir}",
+                                          "white")
+                    lst = copyfile(src_week, dst_week)
+                    color.print_color(f"Copied to : {dst_week}", "white")
+                except FileNotFoundError as e:
+                    # print(e)
+                    # print(src_week, dst_week)
+                    pass
     print()
 
 
@@ -110,10 +139,12 @@ def main():
     does_calendar_exists(year)
     # 3 à partir de quelle semaine
     start_week = get_startweek()
+    # 4 obtenir les ranges de semaine à copier
+    range_weeks = get_range_weeks(start_week)
     # 4 effacer si deja existant
-    clean_dest_folder(year, start_week)
+    clean_dest_folder(year, start_week, range_weeks)
     # 5 copier si ça n'existe pas
-    copy_if_not_exist(year)
+    copy_if_not_exist(year, start_week, range_weeks)
     # 6 gitadd
     ask_gitadd_and_gitadd(year)
     # 7 bye
