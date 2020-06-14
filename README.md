@@ -88,6 +88,7 @@ semaine36.md
 5. startweek : spécifier l'année de départ
     TODO : utiliser automatiquement si l'année est entamée afin d'éviter toute
     bévue quand on copie les fichiers.
+6. Copie du readme avec le calendrier vers le dossier github
 
 ## CORRECTIFS
 * corriger bug dates : lundi  29 avril 2020 : FAUX c'est le jour de l'année
