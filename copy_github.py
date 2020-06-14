@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 '''
 Copier le calendrier qu'on vient de générer vers le dossier cours de github
 '''
@@ -121,6 +123,12 @@ def copy_if_not_exist(year, start_week, range_weeks):
                     # print(e)
                     # print(src_week, dst_week)
                     pass
+    # copy readme (avec le calendrier présentable dans github)
+    src_readme = src  + "/README.md"
+    dst_readme = dst + "/README.md"
+    lst = copyfile(src_readme , dst_readme)
+    color.print_color(f"Readme copied to : {dst_readme}", "white")
+
     print()
 
 
