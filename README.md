@@ -25,7 +25,7 @@ $ python cahier_texte_generator.py
 
 ## Usage courant
 
-On peut spécifier l'année scolaire de départ : 2019 pour 2019/2029
+On peut spécifier l'année scolaire de départ : 2019 pour 2019/2020
 ainsi que la semaine à partir de laquelle on veut mettre à jour le calendrier
 ainsi seuls les semaines après la semaine spécifiée seront modifiées.
 
