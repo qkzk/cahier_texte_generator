@@ -16,18 +16,13 @@ content_per_day = {}
 
 # lundi
 content_per_day[0] = """
-* 8h-9h50 - 213 - ISN
-* 12h45-13h40 - 217 - 2nde9
-* 13h40-15h30 - 213 - NSI
-* 15h40-16h35 - BM06 - AP 2nde9
-* 16h35-17h30 - 217 - 2nde9
-  * **semaine impaire**
+* 8h-9h50 - 213 - Tale NSI
+* 10h00-11h50 - 307 - 1ere NSI
 """
 
 # mardi
 content_per_day[1] = """
-* 12h45-13h40 - 106 - aero g1
-* 15h40-16h35 - 307 - aero g2
+* 13h40-15h30 - 213 - Tale NSI
 """
 
 # mercredi
@@ -36,16 +31,16 @@ content_per_day[2] = """
 
 # jeudi
 content_per_day[3] = """
-* 8h-8h55 - BM06 - AP orientation
-* 8h55-9h50 - 207 - 2nde 9
-* 10h-11h50 - 117 - Aero1
+* 8h-9h50 - 213 - 1ere NSI g1
+* 10h-11h50 - 213 - 1ere NSI g2
+* 11h50-12h40 - 301 - Aéro2 g1
+* 13h40-14h35 - 301 - Aéro2 g2
 """
 
 # vendredi
 content_per_day[4] = """
-* 10h-11h50 - 213 - NSI
-* 14h35-15h55 - 120 - 2nd9 g1
-* 16h05-17h30 - 120 - 2nd9 g2
+* 8h-9h50 - 213 - Tale NSI
+* 10h00-11h50 - 301 - Aéro
 """
 
 # samedi
