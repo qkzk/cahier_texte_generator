@@ -22,16 +22,16 @@ from pprint import pprint
 
 from content_per_day import content_per_day
 
-year = 2021
+year = 2022
 start_week = None
 liste_periode = range(1, 6)
 dic_fin_periodes = {
-    0: "1/09/2021",  # pre rentrée
-    1: "08/11/2021",  # rentrée vacances Toussaint
-    2: "03/01/2022",  # rentrée vacances Noël
-    3: "21/02/2022",  # rentrée vacances d'hiver
-    4: "25/04/2022",  # rentrée vacances Printemps
-    5: "07/07/2022",  # fin d'année scolaire
+    0: "31/08/2022",  # pre rentrée
+    1: "07/11/2022",  # rentrée vacances Toussaint
+    2: "02/01/2023",  # rentrée vacances Noël
+    3: "27/02/2023",  # rentrée vacances d'hiver
+    4: "01/05/2023",  # rentrée vacances Printemps
+    5: "08/07/2023",  # fin d'année scolaire
 }
 
 # constants
@@ -360,6 +360,8 @@ class EventsMonthCalendar(HTMLCalendar):
             return '<td class="noday">&nbsp;</td>'  # day outside month
         else:
             nb_period = self.which_period(day)
+            if nb_period is None:
+                raise ValueError(f"{day}, {weekday}, {nb_period}")
             nb_week = self.which_weeknumber(day)
             string_url = self.formatURL(nb_period, nb_week)
             return '<td class="{0}"><a href="{1}">{2}</a></td>'.format(

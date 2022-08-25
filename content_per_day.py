@@ -18,51 +18,51 @@ content_per_day = {}
 content_per_day[
     0
 ] = """
-* 6h40-7h14 - gare - train
-* 8h-9h50 - 213 - 1ere NSI
-* 10h00-11h50 - 213 - tale NSI
-* 13h10-14h35 - 213 - 2nde 8 g2
-* 14h35-15h55 - 213 - 2nde 8 g1
-* 16h14-16h47 - gare - train
 """
 
 # mardi
 content_per_day[
     1
 ] = """
-* 12h40-13h14 - gare - train
-* 13h40-15h30 - 213 - Tale NSI
-* 15h40-16h14 - gare - train
+* 6h40-7h14 - gare - train
+* 8h-9h50 - 213 - tale NSI
+* 10h00-10h55 - 213 - tmg2-1
+* 11h15-11h47 - gare - train
 """
 
 # mercredi
 content_per_day[
     2
 ] = """
+* 6h40-7h14 - gare - train
+* 8h-8h55 - 213 - tale NSI-1
+* 8h55-9h50 - 213 - tale NSI-2
+* 10h00-11h50 - 213 - 1ere NSI
+* 12h15-12h47 - gare - train
 """
 
 # jeudi
 content_per_day[
     3
 ] = """
-* 6h40-7h14 - gare - train
-* 8h-9h50 - 213 - 1ere NSI g1
-* 10h-11h50 - 213 - 1ere NSI g2
-* 11h50-12h45 - 213 - 2nde8 Orientation 1-2
-* 14h35-15h30 - 206 - 2nde8
-* 15h40-16h35 - 217 - 2nde8 AP
-* 16h51-17h37 - gare - train
+* 8h40-9h14 - gare - train
+* 10h-11h50 - 213 - TMG2
+* 12h45-14h35 - 213 - tale NSI-1
+* 14h35-15h40 - 213 - tale NSI
+* 15h40-17h30 - 213 - tale NSI-2
+* 17h46-18h20 - gare -train
 """
 
 # vendredi
 content_per_day[
     4
 ] = """
-* 6h40-7h14 - gare - train
-* 8h-9h50 - 213 - Tale NSI
-* 10h55-11h50 - 106 - 2nde8
-* 11h50-12h45 - 217 - 2nde8 Q1
-* 13h21-14h07 - gare - train
+* 7h40-8h14 - gare - train
+* 8h55-9h50 - 213 - tmg2-2
+* 11h50-12h45 - 113 - tmg2 AP Q2
+* 13h40-15h30 - 213 - 1ere NSI 1
+* 15h40-17h30 - 213 - 1ere NSI 2
+* 17h46-18h20 - gare -train
 """
 
 # samedi
