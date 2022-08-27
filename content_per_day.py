@@ -59,7 +59,7 @@ content_per_day[
 ] = """
 * 7h40-8h14 - gare - train
 * 8h55-9h50 - 213 - tmg2-2
-* 11h50-12h45 - 113 - tmg2 AP Q2
+* 11h50-12h45 - 113 - tg9 AP Q2
 * 13h40-15h30 - 213 - 1ere NSI 1
 * 15h40-17h30 - 213 - 1ere NSI 2
 * 17h46-18h20 - gare -train
