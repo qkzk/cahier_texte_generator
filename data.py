@@ -1,3 +1,17 @@
+# TODO faire de ce fichier de code un fichier de texte facilement éditable et compréhensible de tous.
+
+year = 2020
+start_week = None
+liste_periode = range(1, 6)
+dic_fin_periodes = {
+    0: "31/08/2022",  # prerentrée
+    1: "07/11/2022",  # rentrée vacances Toussaint
+    2: "02/01/2023",  # rentrée vacances Noël
+    3: "27/02/2023",  # rentrée vacances d'hiver
+    4: "01/05/2023",  # rentrée vacances Printemps
+    5: "08/07/2023",  # fin d'année scolaire
+}
+
 """
 content_per_day = {
     0: "\n* 8h-8h55 - s213\n* 8h55-9h50 - s215\n* 10h-10h55 - s104\n",
@@ -12,7 +26,6 @@ content_per_day = {
 """
 
 content_per_day = {}
-
 
 # lundi
 content_per_day[

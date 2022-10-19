@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+
+# TODO incompatible open-source
+
 '''
 Copier le calendrier qu'on vient de générer vers le dossier cours de github
 '''
@@ -10,6 +13,7 @@ import subprocess
 from shutil import copyfile
 
 import importlib.util
+
 # colors module
 filepath_color = "/home/quentin/gdrive/dev/python/linux_utils/tests/colors.py"
 spec = importlib.util.spec_from_file_location(
@@ -17,15 +21,14 @@ spec = importlib.util.spec_from_file_location(
 color = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(color)
 
-
-calendar_path = "/home/quentin/gdrive/dev/python/"\
-    "boulot_utils/cahier_texte_generator/calendrier/"
+calendar_path = "/home/quentin/gdrive/dev/python/" \
+                "boulot_utils/cahier_texte_generator/calendrier/"
 gitcours_path = "/home/quentin/gdrive/cours/git_cours/cours/"
 
 which_year_msg = "Quelle année voulez-vous copier ? "
 which_week_msg = "À partir de quelle semaine  ? [34] "
-calendar_not_exist_msg = "Vous devez d'abord générer "\
-    "le cahier de texte de l'année {}"
+calendar_not_exist_msg = "Vous devez d'abord générer " \
+                         "le cahier de texte de l'année {}"
 
 start_week_invalid_msg = "La semaine proposée ne convient pas"
 is_gitadd_msg = "Do you want to push this calendar to git_cours ? [yes/NO] "
@@ -88,11 +91,11 @@ def clean_dest_folder(year, start_week, range_weeks):
         # vider le dossier
         for period in range(1, 6):
             for week in range(1, 53):
-                if week in range_weeks["weeks_first_year"]\
+                if week in range_weeks["weeks_first_year"] \
                         or week in range_weeks["weeks_second_year"]:
                     try:
                         file = gitcours_path + year + \
-                            "/periode_{}/semaine_{}.md".format(period, week)
+                               "/periode_{}/semaine_{}.md".format(period, week)
                         os.remove(file)
                         color.print_color(f"Deleted : {file}", "white")
                     except OSError:
@@ -105,7 +108,7 @@ def copy_if_not_exist(year, start_week, range_weeks):
 
     for period in range(1, 6):
         for week in range(1, 53):
-            if week in range_weeks["weeks_first_year"]\
+            if week in range_weeks["weeks_first_year"] \
                     or week in range_weeks["weeks_second_year"]:
                 src_week = src + "/periode_{}/semaine_{}.md".format(period,
                                                                     week)
@@ -124,9 +127,9 @@ def copy_if_not_exist(year, start_week, range_weeks):
                     # print(src_week, dst_week)
                     pass
     # copy readme (avec le calendrier présentable dans github)
-    src_readme = src  + "/README.md"
+    src_readme = src + "/README.md"
     dst_readme = dst + "/README.md"
-    lst = copyfile(src_readme , dst_readme)
+    lst = copyfile(src_readme, dst_readme)
     color.print_color(f"Readme copied to : {dst_readme}", "white")
 
     print()
@@ -136,7 +139,7 @@ def ask_gitadd_and_gitadd(year):
     is_gitadd = ask(is_gitadd_msg, "yellow")
     if is_gitadd in 'yesYES':
         os.chdir(gitcours_path)
-        subprocess.call(gitadd_cmd.format("calendar " + year), shell=True)
+        subprocess.call(gitadd_cmd.format("calendar " + year), shell=False)
         color.print_color(gitadd_succes_msg.format(year), "cyan")
 
 
