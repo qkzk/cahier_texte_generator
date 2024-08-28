@@ -4,12 +4,12 @@ year = 2020
 start_week = None
 liste_periode = range(1, 6)
 dic_fin_periodes = {
-    0: "31/08/2022",  # prerentrée
-    1: "07/11/2022",  # rentrée vacances Toussaint
-    2: "02/01/2023",  # rentrée vacances Noël
-    3: "27/02/2023",  # rentrée vacances d'hiver
-    4: "01/05/2023",  # rentrée vacances Printemps
-    5: "08/07/2023",  # fin d'année scolaire
+    0: "31/08/2024",  # prerentrée
+    1: "07/11/2024",  # rentrée vacances Toussaint
+    2: "02/01/2025",  # rentrée vacances Noël
+    3: "27/02/2025",  # rentrée vacances d'hiver
+    4: "01/05/2025",  # rentrée vacances Printemps
+    5: "08/07/2025",  # fin d'année scolaire
 }
 
 """

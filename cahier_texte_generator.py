@@ -86,20 +86,12 @@ Pour l'instant elle contient :
 
 # VARIABLES
 # TODO Récupérer les données dans un fichier externe au code
-year = data.year
-start_week = data.start_week
-liste_periode = data.liste_periode
-dic_fin_periodes = data.dic_fin_periodes
-
-liste_fin_periode = []
-
-for period_nb, string_fin_periode in dic_fin_periodes.items():
-    date_fin_periode = datetime.strptime(string_fin_periode, "%d/%m/%Y")
-    liste_fin_periode.append(date_fin_periode)
 
 
 # FONCTIONS
-def get_start_and_end_date_from_calendar_week(year_param, calendar_week):
+def get_start_and_end_date_from_calendar_week(
+    year_param: int, calendar_week: int
+) -> list:
     """
     Renvoie une liste de jours d'une semaine d'une année.
 
@@ -116,7 +108,7 @@ def get_start_and_end_date_from_calendar_week(year_param, calendar_week):
     return list_days
 
 
-def create_file_content(sem):
+def create_file_content(sem: int, year: int):
     """
     Renvoie le contenu d'un fichier semaine.
 
@@ -142,7 +134,7 @@ def create_file_content(sem):
     )
 
     # On itère sur les dates et ajoute le contenu de chaque journée
-    for nb, day in enumerate(list_days):
+    for nb, _ in enumerate(list_days):
         string_day = list_string_day[nb]
         # L'entête de chaque journée
         file_content += "\n## {0}\n".format(string_day)
@@ -167,7 +159,13 @@ def format_string_jour(day):
     return string_day
 
 
-def create_md_file(period_nb_param, week_number):
+def create_md_file(
+    year: int,
+    period_nb_param: int,
+    week_number: int,
+    default_path_md: str,
+    default_file_name: str,
+):
     """
     Crée le fichier .md de chaque semaine et le remplit
     Les dossiers existent déjà à cette étape, on se contente de les remplir
@@ -184,7 +182,7 @@ def create_md_file(period_nb_param, week_number):
     # 36 ---> semaine_36.md
     filename = default_file_name.format(week_number)
     with open(os.path.join(path, filename), "w+") as f:
-        content = create_file_content(week_number)
+        content = create_file_content(week_number, year)
         f.write(content)
         return
 
@@ -194,7 +192,16 @@ def extract_week_number(dt: datetime) -> int:
     return dt.isocalendar()[1]
 
 
-def create_cahier_texte(start_week_param=None):
+def create_cahier_texte(
+    year: int,
+    default_path_year: str,
+    default_path_md: str,
+    liste_periode: list[int],
+    dic_fin_periodes: dict[int, str],
+    liste_fin_periode: list,
+    default_file_name: str,
+    start_week_param=None,
+):
     """
     Fonction principale qui crée les fichiers et les remplit pour chaque
     période et chaque semaine de chaque période.
@@ -213,7 +220,7 @@ def create_cahier_texte(start_week_param=None):
         pathlib.Path(default_path_md + str(periode)).mkdir(parents=True, exist_ok=True)
 
     # On peuple les dossiers de période
-    for period_index, v in dic_fin_periodes.items():
+    for period_index, _ in dic_fin_periodes.items():
         # On récupère les dates et semaines extrêmes de la période
         date_debut: datetime = liste_fin_periode[period_index]
         try:
@@ -244,13 +251,19 @@ def create_cahier_texte(start_week_param=None):
         if semaine_debut_periode < semaine_fin_periode:
             # Période normale, pas de changement d'année civile
             for sem_nbr in range(semaine_debut_periode, semaine_fin_periode):
-                create_md_file(period_index, sem_nbr)
+                create_md_file(
+                    year, period_index, sem_nbr, default_path_md, default_file_name
+                )
         else:
             # Changement d'année civile en cours de période
             for sem_nbr in range(semaine_debut_periode, 53):
-                create_md_file(period_index, sem_nbr)
+                create_md_file(
+                    year, period_index, sem_nbr, default_path_md, default_file_name
+                )
             for sem_nbr in range(1, semaine_fin_periode):
-                create_md_file(period_index, sem_nbr)
+                create_md_file(
+                    year, period_index, sem_nbr, default_path_md, default_file_name
+                )
 
     # On affiche que tout c'est bien déroulé
     print("\nCalendrier généré correctement, fin du programme")
@@ -265,14 +278,15 @@ class EventsMonthCalendar(HTMLCalendar):
     Les pages étant rangées dans des sous dossiers par période
     """
 
-    def __init__(self, year_param, month, *args_param, **kwargs):
+    def __init__(self, year_param, month, liste_fin_periode, *args_param, **kwargs):
         super().__init__(*args_param, **kwargs)
         self.month = month
         self.year = year_param
+        self.liste_fin_periode = liste_fin_periode
         self.start_url = "https://github.com/qkzk/cours/blob/master/"
         self.end_url = ".md"
 
-    def which_day(self, day):
+    def which_day(self, day: int):
         """
         Renvoie la date du jour en question
         @param day: (int) le jour
@@ -280,7 +294,7 @@ class EventsMonthCalendar(HTMLCalendar):
         """
         return datetime(self.year, self.month, day)
 
-    def which_period(self, day):
+    def which_period(self, day: int, liste_fin_periode: list):
         """
         Renvoie la période du jour en question
         @param day: (int) le numéro du jour
@@ -318,7 +332,7 @@ class EventsMonthCalendar(HTMLCalendar):
         )
         return self.start_url + middle_url + self.end_url
 
-    def formatday(self, day, weekday):
+    def formatday(self, day: int, weekday: int):
         """
         Return a day as a table cell.
         @param day: (int) le numéro du jour
@@ -327,7 +341,7 @@ class EventsMonthCalendar(HTMLCalendar):
         if day == 0:
             return '<td class="noday">&nbsp;</td>'  # day outside month
         else:
-            nb_period = self.which_period(day)
+            nb_period = self.which_period(day, self.liste_fin_periode)
             if nb_period is None:
                 raise ValueError(f"{day}, {weekday}, {nb_period}")
             nb_week = self.which_week_number(day)
@@ -337,7 +351,7 @@ class EventsMonthCalendar(HTMLCalendar):
             )
 
 
-def generate_months():
+def generate_months(year: int, liste_fin_periode: list):
     """
     Génère du contenu HTML dans une string
     Pour être affiché dans github
@@ -349,16 +363,20 @@ def generate_months():
 
     for month in range(9, 13):
         html_string += "\n" * 3
-        html_string += EventsMonthCalendar(year, month).formatmonth(year, month)
+        html_string += EventsMonthCalendar(year, month, liste_fin_periode).formatmonth(
+            year, month
+        )
 
     for month in range(1, 7):
         html_string += "\n" * 3
-        html_string += EventsMonthCalendar(year + 1, month).formatmonth(year + 1, month)
+        html_string += EventsMonthCalendar(
+            year + 1, month, liste_fin_periode
+        ).formatmonth(year + 1, month)
 
     return html_string
 
 
-def write_html_months():
+def write_html_months(year: int, default_path_year: str, liste_fin_periode: list):
     """
     Écrit le fichier README.md avec le contenu HTML à l'adresse :
     ./calendrier/2019/README.md
@@ -371,7 +389,7 @@ def write_html_months():
     path = default_path_year
     filename = "README.md"
     with open(os.path.join(path, filename), "w+") as f:
-        content = generate_months()
+        content = generate_months(year, liste_fin_periode)
         f.write(content)
         return
 
@@ -380,7 +398,17 @@ def color_text(text, color="BOLD"):
     return TEXT_COLORS[color] + text + TEXT_COLORS["END"]
 
 
-if __name__ == "__main__":
+def main():
+    year = data.year
+    start_week = data.start_week
+    liste_periode = list(data.liste_periode)
+    dic_fin_periodes = data.dic_fin_periodes
+
+    liste_fin_periode = []
+
+    for _, string_fin_periode in dic_fin_periodes.items():
+        date_fin_periode = datetime.strptime(string_fin_periode, "%d/%m/%Y")
+        liste_fin_periode.append(date_fin_periode)
 
     print(color_text(WELCOME_BANNER, "DARKCYAN"))
 
@@ -436,7 +464,20 @@ if __name__ == "__main__":
     default_file_name = "semaine_{}.md"
 
     # On crée les dossiers et les fichiers de la semaine
-    create_cahier_texte(start_week)
+    create_cahier_texte(
+        year,
+        default_path_year,
+        default_path_md,
+        liste_periode,
+        dic_fin_periodes,
+        liste_fin_periode,
+        default_file_name,
+        start_week,
+    )
 
     # On crée les liens depuis un calendrier
-    write_html_months()
+    write_html_months(year, default_path_year, liste_fin_periode)
+
+
+if __name__ == "__main__":
+    main()
