@@ -2,8 +2,8 @@
 
 year = 2020
 start_week = None
-liste_periode = range(1, 6)
-dic_fin_periodes = {
+list_periods = range(1, 6)
+dict_period_ends = {
     0: "31/08/2024",  # prerentrée
     1: "07/11/2024",  # rentrée vacances Toussaint
     2: "02/01/2025",  # rentrée vacances Noël
