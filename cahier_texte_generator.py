@@ -107,8 +107,7 @@ def get_start_and_end_date_from_calendar_week(year_param, calendar_week):
     @param calendar_week: (int) numéro de la semaine : 36
     @return: (list of date) la liste des dates de la semaine du lundi au dimanche
     """
-    monday = datetime.strptime(
-        f"{year_param}-{calendar_week}-1", "%Y-%W-%w").date()
+    monday = datetime.fromisocalendar(year_param, calendar_week, 1).date()
 
     list_days = []
     for d in range(7):
@@ -161,11 +160,10 @@ def format_string_jour(day):
     @return : (str) le format d'un jour : lundi 03 septembre
     """
     # On utilise setlocale pour ne pas avoir à traduire "manuellement".
-    locale.setlocale(locale.LC_ALL, '')
+    locale.setlocale(locale.LC_ALL, "")
     day_of_the_week = day.strftime("%A")
     month = day.strftime("%B")
-    string_day = "{0} {1} {2}".format(
-        day_of_the_week, day.strftime("%d"), month)
+    string_day = "{0} {1} {2}".format(day_of_the_week, day.strftime("%d"), month)
     return string_day
 
 
@@ -191,6 +189,11 @@ def create_md_file(period_nb_param, week_number):
         return
 
 
+def extract_week_number(dt: datetime) -> int:
+    """Return the correct week for this date"""
+    return dt.isocalendar()[1]
+
+
 def create_cahier_texte(start_week_param=None):
     """
     Fonction principale qui crée les fichiers et les remplit pour chaque
@@ -207,19 +210,18 @@ def create_cahier_texte(start_week_param=None):
 
     # On crée les dossiers de période
     for periode in liste_periode:
-        pathlib.Path(default_path_md + str(periode)
-                     ).mkdir(parents=True, exist_ok=True)
+        pathlib.Path(default_path_md + str(periode)).mkdir(parents=True, exist_ok=True)
 
     # On peuple les dossiers de période
     for period_index, v in dic_fin_periodes.items():
         # On récupère les dates et semaines extrêmes de la période
-        date_debut = liste_fin_periode[period_index]
+        date_debut: datetime = liste_fin_periode[period_index]
         try:
-            date_fin = liste_fin_periode[period_index + 1]
+            date_fin: datetime = liste_fin_periode[period_index + 1]
         except IndexError:
             break
-        semaine_debut_periode = date_debut.isocalendar()[1]
-        semaine_fin_periode = date_fin.isocalendar()[1]
+        semaine_debut_periode = extract_week_number(date_debut)
+        semaine_fin_periode = extract_week_number(date_fin)
         # TODO start_year_2 non pris en compte
         start_year_2 = 1
 
@@ -235,7 +237,8 @@ def create_cahier_texte(start_week_param=None):
         print("periode {}".format(period_index + 1), end=" - ")
         print(
             "semaines {} jusque {}".format(
-                semaine_debut_periode, 52 if (semaine_fin_periode - 1 == 0) else semaine_fin_periode - 1
+                semaine_debut_periode,
+                52 if (semaine_fin_periode - 1 == 0) else semaine_fin_periode - 1,
             )
         )
         if semaine_debut_periode < semaine_fin_periode:
@@ -311,8 +314,7 @@ class EventsMonthCalendar(HTMLCalendar):
         """
         school_year = self.year if nb_week > 30 else self.year - 1
         middle_url = (
-                str(school_year) + "/periode_" +
-                str(nb_period) + "/semaine_" + str(nb_week)
+            str(school_year) + "/periode_" + str(nb_period) + "/semaine_" + str(nb_week)
         )
         return self.start_url + middle_url + self.end_url
 
@@ -347,13 +349,11 @@ def generate_months():
 
     for month in range(9, 13):
         html_string += "\n" * 3
-        html_string += EventsMonthCalendar(year,
-                                           month).formatmonth(year, month)
+        html_string += EventsMonthCalendar(year, month).formatmonth(year, month)
 
     for month in range(1, 7):
         html_string += "\n" * 3
-        html_string += EventsMonthCalendar(year + 1,
-                                           month).formatmonth(year + 1, month)
+        html_string += EventsMonthCalendar(year + 1, month).formatmonth(year + 1, month)
 
     return html_string
 
@@ -401,8 +401,7 @@ if __name__ == "__main__":
 
             reponse_annee = input(
                 color_text(
-                    color_text("Voulez-vous continuer ? (y/N) : ",
-                               "BOLD"), "RED"
+                    color_text("Voulez-vous continuer ? (y/N) : ", "BOLD"), "RED"
                 )
             )
 
@@ -416,8 +415,7 @@ if __name__ == "__main__":
 
             reponse_edt = input(
                 color_text(
-                    color_text("Voulez-vous continuer ? (y/N) : ",
-                               "BOLD"), "RED"
+                    color_text("Voulez-vous continuer ? (y/N) : ", "BOLD"), "RED"
                 )
             )
 
