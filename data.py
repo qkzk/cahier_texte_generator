@@ -1,15 +1,15 @@
 # TODO faire de ce fichier de code un fichier de texte facilement éditable et compréhensible de tous.
 
-year = 2020
+year = 2024
 start_week = None
 list_periods = range(1, 6)
 dict_period_ends = {
-    0: "31/08/2024",  # prerentrée
-    1: "07/11/2024",  # rentrée vacances Toussaint
-    2: "02/01/2025",  # rentrée vacances Noël
-    3: "27/02/2025",  # rentrée vacances d'hiver
-    4: "01/05/2025",  # rentrée vacances Printemps
-    5: "08/07/2025",  # fin d'année scolaire
+    0: "30/08/2024",  # prerentrée
+    1: "04/11/2024",  # rentrée vacances Toussaint
+    2: "06/01/2025",  # rentrée vacances Noël
+    3: "24/02/2025",  # rentrée vacances d'hiver
+    4: "22/04/2025",  # rentrée vacances Printemps
+    5: "05/07/2025",  # fin d'année scolaire
 }
 
 """

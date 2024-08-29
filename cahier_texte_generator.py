@@ -103,11 +103,7 @@ class DataDates:
         if len(sys.argv) > 1:
             self.try_parse_argv(sys.argv)
         else:
-            print(
-                "Aucune année fournie, on utilise l'année {} comme exemple".format(
-                    self.year
-                )
-            )
+            print(f"Aucune année fournie, on utilise l'année {self.year} comme exemple")
         return self
 
     def try_parse_argv(self, argv: list[str]):
@@ -178,11 +174,7 @@ class CahierTexteCreator:
         return list(map(self.format_string_jour, list_days))
 
     def format_file_content(self, sem: int, list_string_day: list) -> str:
-        return "# Semaine {0} - du {1} au {2}\n\n".format(
-            sem,
-            list_string_day[0],
-            list_string_day[-1],
-        )
+        return f"# Semaine {sem} - du {list_string_day[0]} au {list_string_day[-1]}\n\n"
 
     def push_day_content(self, file_content: str, nb: int, string_day: str) -> str:
         # L'entête de chaque journée
@@ -226,7 +218,7 @@ class CahierTexteCreator:
         locale.setlocale(locale.LC_ALL, "")
         day_of_the_week = day.strftime("%A")
         month = day.strftime("%B")
-        string_day = "{0} {1} {2}".format(day_of_the_week, day.strftime("%d"), month)
+        string_day = f"{day_of_the_week} {day.strftime('%d')} {month}"
         return string_day
 
     def create_md_filename(self, period_nb_param: int, week_number: int):
@@ -263,6 +255,69 @@ class CahierTexteCreator:
         """Return the correct week for this date"""
         return dt.isocalendar()[1]
 
+    def create_year_folder(self):
+        # On crée le dossier de l'année
+        pathlib.Path(self.pathes.default_path_year).mkdir(parents=True, exist_ok=True)
+
+    def create_period_folders(self):
+        # On crée les dossiers de période
+        for periode in self.dates.list_periods:
+            pathlib.Path(self.pathes.default_path_md + str(periode)).mkdir(
+                parents=True, exist_ok=True
+            )
+
+    def get_start_period_date(self, period_index: int):
+        return self.dates.list_period_ends[period_index]
+
+    def get_end_period_date(self, period_index: int):
+        return self.dates.list_period_ends[period_index + 1]
+
+    def get_week_start_period(self, start_date):
+        week_start_period = self.extract_week_number(start_date)
+        if self.dates.start_week and not self.dates.start_week < week_start_period:
+            week_start_period = self.dates.start_week
+        return week_start_period
+
+    def create_period_md_files(
+        self, week_start_period: int, week_end_period: int, period_index: int
+    ):
+        if week_start_period < week_end_period:
+            # Période normale, pas de changement d'année civile
+            for week_index in range(week_start_period, week_end_period):
+                self.create_md_file(
+                    period_index,
+                    week_index,
+                )
+        else:
+            # Changement d'année civile en cours de période
+            for week_index in range(week_start_period, 53):
+                self.create_md_file(period_index, week_index)
+            for week_index in range(1, week_end_period):
+                self.create_md_file(period_index, week_index)
+
+    def populate_a_period(self, period_index: int) -> bool:
+        # On récupère les dates et semaines extrêmes de la période
+        start_date: datetime = self.get_start_period_date(period_index)
+        try:
+            end_date: datetime = self.get_end_period_date(period_index)
+        except IndexError:
+            return False
+        week_start_period = self.get_week_start_period(start_date)
+        week_end_period = self.extract_week_number(end_date)
+
+        # On affiche un peu pour se repérer et voir l'avancée
+        print(
+            f"periode {period_index + 1} - semaines {week_start_period} jusque {52 if (week_end_period == 1) else week_end_period - 1}"
+        )
+        self.create_period_md_files(week_start_period, week_end_period, period_index)
+        return True
+
+    def populate_period_folders(self):
+        # On peuple les dossiers de période
+        for period_index in self.dates.dict_period_ends:
+            if not self.populate_a_period(period_index):
+                break
+
     def create_cahier_texte(self):
         """
         Fonction principale qui crée les fichiers et les remplit pour chaque
@@ -274,55 +329,9 @@ class CahierTexteCreator:
         @param:
         @return None
         """
-        # On crée le dossier de l'année
-        pathlib.Path(self.pathes.default_path_year).mkdir(parents=True, exist_ok=True)
-
-        # On crée les dossiers de période
-        for periode in self.dates.list_periods:
-            pathlib.Path(self.pathes.default_path_md + str(periode)).mkdir(
-                parents=True, exist_ok=True
-            )
-
-        # On peuple les dossiers de période
-        for period_index in self.dates.dict_period_ends:
-            # On récupère les dates et semaines extrêmes de la période
-            date_debut: datetime = self.dates.list_period_ends[period_index]
-            try:
-                date_fin: datetime = self.dates.list_period_ends[period_index + 1]
-            except IndexError:
-                break
-            semaine_debut_periode = self.extract_week_number(date_debut)
-            semaine_fin_periode = self.extract_week_number(date_fin)
-            # TODO start_year_2 non pris en compte
-            start_year_2 = 1
-
-            if (
-                self.dates.start_week
-                and not self.dates.start_week < semaine_debut_periode
-            ):
-                semaine_debut_periode = self.dates.start_week
-
-            # On affiche un peu pour se repérer et voir l'avancée
-            print("periode {}".format(period_index + 1), end=" - ")
-            print(
-                "semaines {} jusque {}".format(
-                    semaine_debut_periode,
-                    52 if (semaine_fin_periode - 1 == 0) else semaine_fin_periode - 1,
-                )
-            )
-            if semaine_debut_periode < semaine_fin_periode:
-                # Période normale, pas de changement d'année civile
-                for sem_nbr in range(semaine_debut_periode, semaine_fin_periode):
-                    self.create_md_file(
-                        period_index,
-                        sem_nbr,
-                    )
-            else:
-                # Changement d'année civile en cours de période
-                for sem_nbr in range(semaine_debut_periode, 53):
-                    self.create_md_file(period_index, sem_nbr)
-                for sem_nbr in range(1, semaine_fin_periode):
-                    self.create_md_file(period_index, sem_nbr)
+        self.create_year_folder()
+        self.create_period_folders()
+        self.populate_period_folders()
 
         # On affiche que tout c'est bien déroulé
         print(GOODBYE_MESSAGE)
@@ -411,6 +420,8 @@ class EventsMonthCalendar(HTMLCalendar):
 
 
 class LinkCalendar:
+    FILENAME = "README.md"
+
     def __init__(self, dates: DataDates, pathes: Pathes):
         self.dates = dates
         self.pathes = pathes
@@ -450,15 +461,12 @@ class LinkCalendar:
         """
         # 0 ---> ./calendrier/2019
         content = self.generate_months()
-        print(content[:100])
 
         path = self.pathes.default_path_year
-        filename = "README.md"
-        file_path = os.path.join(path, filename)
-        print(file_path)
+        file_path = os.path.join(path, self.FILENAME)
         with open(file_path, "w+") as f:
             f.write(content)
-            return
+        print(file_path)
 
 
 def color_text(text, color="BOLD"):
@@ -468,7 +476,6 @@ def color_text(text, color="BOLD"):
 def user_input(dates: DataDates):
     print(WARNING_PERIODS_YEAR.format(dates.year))
 
-    # TODO Changer affichage
     pprint(dates.dict_period_ends)
 
     reponse_annee = input(
@@ -502,9 +509,9 @@ def main():
     dates = DataDates().with_args()
     user_input(dates)
 
-    pathes = Pathes(dates.year)
     # L'utilisateur a tout compris on peut créer 45 fichiers :)
 
+    pathes = Pathes(dates.year)
     # On crée les dossiers et les fichiers de la semaine
     CahierTexteCreator(dates, pathes).create_cahier_texte()
 
