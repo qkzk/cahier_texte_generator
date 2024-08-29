@@ -18,7 +18,7 @@ import pathlib
 import sys
 from calendar import HTMLCalendar
 from pprint import pprint
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 
 import data
 
@@ -70,7 +70,7 @@ WARNING_PERIODS_YEAR = """
 Generation du cahier de texte de l'année {}.
 
 Attention,
-il faut modifier les dates des périodes dans les sources !
+il faut modifier les dates des périodes dans ./data.py
 Les périodes en mémoire sont sont :
 """
 
@@ -100,13 +100,15 @@ class DataDates:
         self.list_period_ends = self.create_period_ends()
 
     def with_args(self) -> DataDates:
+        """Parse the arguments if any."""
         if len(sys.argv) > 1:
             self.try_parse_argv(sys.argv)
         else:
             print(f"Aucune année fournie, on utilise l'année {self.year} comme exemple")
         return self
 
-    def try_parse_argv(self, argv: list[str]):
+    def try_parse_argv(self, argv: list[str]) -> None:
+        """Parse the arguments. Raise a ValueError if the argument isn't a valid year."""
         try:
             self.update_from_argv(argv)
         except ValueError as e:
@@ -114,7 +116,8 @@ class DataDates:
             print("L'argument doit être une année, par exemple : 2019")
             raise e
 
-    def create_period_ends(self) -> list:
+    def create_period_ends(self) -> list[datetime]:
+        """Creates a list of end date for each period."""
         list_period_ends = []
         for _, string_fin_periode in self.dict_period_ends.items():
             date_end_period = datetime.strptime(string_fin_periode, "%d/%m/%Y")
@@ -122,6 +125,7 @@ class DataDates:
         return list_period_ends
 
     def update_from_argv(self, argv: list[str]) -> None:
+        """Updates the year with given one. If there's also another argument it must be the week to begin the calendar"""
         # Si l'année est fournie en paramètre
         self.year = int(argv[1])
         # Si la semaine de début est fournie en paramètre
@@ -131,13 +135,9 @@ class DataDates:
     @staticmethod
     def get_start_and_end_date_from_calendar_week(
         current_year: int, calendar_week: int
-    ) -> list:
+    ) -> list[date]:
         """
         Renvoie une liste de jours d'une semaine d'une année.
-
-        @param year_param: (int) numéro de l'année : 2019
-        @param calendar_week: (int) numéro de la semaine : 36
-        @return: (list of date) la liste des dates de la semaine du lundi au dimanche
         """
         monday = datetime.fromisocalendar(current_year, calendar_week, 1).date()
 
@@ -183,23 +183,20 @@ class CahierTexteCreator:
         file_content += self.content_per_day[nb]
         return file_content
 
-    def create_file_content(self, sem: int):
+    def create_file_content(self, week: int) -> str:
         """
         Renvoie le contenu d'un fichier semaine.
 
         Le fichier est formaté markdown et on le remplit.
-
-        @param sem: (int) numéro de semaine
-        @return : (str) la chaîne de caractères qui est écrite dans le fichier
         """
         # On récupère la liste des dates de la semaine
         list_days = self.dates.get_start_and_end_date_from_calendar_week(
-            self.pick_correct_year(sem), sem
+            self.pick_correct_year(week), week
         )
 
         # On formate toutes les dates pour énumérer plus facilement
         list_string_day = self.format_dates(list_days)
-        file_content = self.format_file_content(sem, list_string_day)
+        file_content = self.format_file_content(week, list_string_day)
 
         # On itère sur les dates et ajoute le contenu de chaque journée
         for nb, _ in enumerate(list_days):
@@ -207,21 +204,21 @@ class CahierTexteCreator:
 
         return file_content
 
-    def format_string_jour(self, day):
+    def format_string_jour(self, day: date) -> str:
         """
         Traduit une date au format français pour être écrite dans le fichier
-
-        @param day: (date) date d'un jour
-        @return : (str) le format d'un jour : lundi 03 septembre
         """
         # On utilise setlocale pour ne pas avoir à traduire "manuellement".
         locale.setlocale(locale.LC_ALL, "")
-        day_of_the_week = day.strftime("%A")
-        month = day.strftime("%B")
-        string_day = f"{day_of_the_week} {day.strftime('%d')} {month}"
-        return string_day
 
-    def create_md_filename(self, period_nb_param: int, week_number: int):
+        day_of_the_week = day.strftime("%A")
+        day_number = day.strftime("%d")
+        month = day.strftime("%B")
+
+        return f"{day_of_the_week} {day_number} {month}"
+
+    def create_md_filepath(self, period_nb_param: int, week_number: int):
+        """Returns the correct filepath for a given period and weeknumber"""
         # 0 ---> ./calendrier/periode_1
         path = self.pathes.default_path_md + str(period_nb_param + 1)
         # 36 ---> semaine_36.md
@@ -238,41 +235,42 @@ class CahierTexteCreator:
         Les dossiers existent déjà à cette étape, on se contente de les remplir
         de fichier et de remplir les fichiers.
 
-        @param period_nb_param: (int) numéro de période : 1
-        @param week_number: (int) numéro de semaine : 36
-        @return : (None)
         SE : crée un fichier et écrit dedans
         """
 
         md_content = self.create_file_content(week_number)
         with open(
-            self.create_md_filename(period_nb_param, week_number), "w+"
+            self.create_md_filepath(period_nb_param, week_number), "w+"
         ) as md_file:
             md_file.write(md_content)
 
     @staticmethod
-    def extract_week_number(dt: datetime) -> int:
+    def extract_week_number(dt: date) -> int:
         """Return the correct week for this date"""
         return dt.isocalendar()[1]
 
-    def create_year_folder(self):
-        # On crée le dossier de l'année
+    def create_year_folder(self) -> None:
+        """Creates a folder for the year."""
         pathlib.Path(self.pathes.default_path_year).mkdir(parents=True, exist_ok=True)
 
-    def create_period_folders(self):
+    def create_period_folders(self) -> None:
+        """Creates folders for each period in the year folder."""
         # On crée les dossiers de période
         for periode in self.dates.list_periods:
             pathlib.Path(self.pathes.default_path_md + str(periode)).mkdir(
                 parents=True, exist_ok=True
             )
 
-    def get_start_period_date(self, period_index: int):
+    def get_start_period_date(self, period_index: int) -> date:
+        """Returns the correct date for the start of a period"""
         return self.dates.list_period_ends[period_index]
 
-    def get_end_period_date(self, period_index: int):
+    def get_end_period_date(self, period_index: int) -> date:
+        """Returns the correct date for the end of a period"""
         return self.dates.list_period_ends[period_index + 1]
 
-    def get_week_start_period(self, start_date):
+    def get_week_start_period(self, start_date) -> int:
+        """Returns the weeknumber for the end of the period"""
         week_start_period = self.extract_week_number(start_date)
         if self.dates.start_week and not self.dates.start_week < week_start_period:
             week_start_period = self.dates.start_week
@@ -280,7 +278,8 @@ class CahierTexteCreator:
 
     def create_period_md_files(
         self, week_start_period: int, week_end_period: int, period_index: int
-    ):
+    ) -> None:
+        """Creates the md files for a given period."""
         if week_start_period < week_end_period:
             # Période normale, pas de changement d'année civile
             for week_index in range(week_start_period, week_end_period):
@@ -296,10 +295,16 @@ class CahierTexteCreator:
                 self.create_md_file(period_index, week_index)
 
     def populate_a_period(self, period_index: int) -> bool:
+        """
+        Creates and writes the period md files.
+        Returns a boolean meaning the outer loop may continue.
+        If the period_index is too big (can't be an index of self.list_period_ends), it returns False.
+        Otherwise, we can try to create another period afterwards and it returns True.
+        """
         # On récupère les dates et semaines extrêmes de la période
-        start_date: datetime = self.get_start_period_date(period_index)
+        start_date: date = self.get_start_period_date(period_index)
         try:
-            end_date: datetime = self.get_end_period_date(period_index)
+            end_date: date = self.get_end_period_date(period_index)
         except IndexError:
             return False
         week_start_period = self.get_week_start_period(start_date)
@@ -313,6 +318,7 @@ class CahierTexteCreator:
         return True
 
     def populate_period_folders(self):
+        """Writes the period folders. Stops as soon as we reach the last possible period."""
         # On peuple les dossiers de période
         for period_index in self.dates.dict_period_ends:
             if not self.populate_a_period(period_index):
@@ -325,9 +331,6 @@ class CahierTexteCreator:
 
         On parcourt chaque période de la liste des périodes.
         On crée les sous dossiers
-
-        @param:
-        @return None
         """
         self.create_year_folder()
         self.create_period_folders()
@@ -354,30 +357,26 @@ class EventsMonthCalendar(HTMLCalendar):
         self.year = year_param
         self.liste_fin_periode = liste_fin_periode
 
-    def which_day(self, day: int):
+    def which_day(self, day: int) -> datetime:
         """
         Renvoie la date du jour en question
-        @param day: (int) le jour
-        @return: (datetime) datetime du jour
         """
         return datetime(self.year, self.month, day)
 
-    def which_period(self, day: int, liste_fin_periode: list):
+    def which_period(self, day: int, liste_fin_periode: list) -> int:
         """
-        Renvoie la période du jour en question
-        @param day: (int) le numéro du jour
-        @return: (int) le numéro de la période
+        Renvoie la période du jour en question.
+        Raise a ValueError if the day can't fit into a period.
         """
         theday = self.which_day(day)
         for nb_period, date_fin_period in enumerate(liste_fin_periode):
             if theday < date_fin_period:
                 return nb_period
+        raise ValueError("Invalid day %d", day)
 
     def which_week_number(self, day):
         """
         Renvoie le numéro de la semaine correspondante
-        @param day: (int) le numéro du jour
-        @return: (int) le numéro de la semaine
         """
         theday = self.which_day(day)
         return theday.isocalendar()[1]
@@ -387,12 +386,6 @@ class EventsMonthCalendar(HTMLCalendar):
         Formate une url pour atteindre mon repo
 
         https://github.com/qkzk/cours/blob/master/2019/periode_5/semaine_18.md
-
-        @param nb_period: (int) le numéro de la période
-        @param nb_week: (int) le numéro de la semaine
-        @return: (str) l'url correspondant à cette semaine
-
-        TODO modifier le nom de l'auteur et du repo pour être plus générique
         """
         school_year = self.year if nb_week > 30 else self.year - 1
         middle_url = (
@@ -403,8 +396,6 @@ class EventsMonthCalendar(HTMLCalendar):
     def formatday(self, day: int, weekday: int):
         """
         Return a day as a table cell.
-        @param day: (int) le numéro du jour
-        @param weekday: (int) le numéro du jour de la semaine
         """
         if day == 0:
             return '<td class="noday">&nbsp;</td>'  # day outside month
@@ -431,8 +422,6 @@ class LinkCalendar:
         Génère du contenu HTML dans une string
         Pour être affiché dans github
 
-        @return: (str) une page HTML avec un calendrier de l'année scolaire.
-            Chaque jour est un lien vers une page github
         """
         html_string = ""
 
@@ -456,7 +445,6 @@ class LinkCalendar:
         ./calendrier/2019/README.md
 
         Utilise les méthodes generateMonths et la classe EventsMonthCalendar
-        @return: (None)
         SE: crée un fichier écrit dedans.
         """
         # 0 ---> ./calendrier/2019
@@ -470,27 +458,28 @@ class LinkCalendar:
 
 
 def color_text(text, color="BOLD"):
+    """Encapsulate a text with ANSI escape chars for color printing in a terminal."""
     return TEXT_COLORS[color] + text + TEXT_COLORS["END"]
 
 
 def user_input(dates: DataDates):
+    """Reads the user input and exit if the user asks to."""
     print(WARNING_PERIODS_YEAR.format(dates.year))
 
     pprint(dates.dict_period_ends)
 
-    reponse_annee = input(
+    year_answer = input(
         color_text(color_text("Voulez-vous continuer ? (y/N) : ", "BOLD"), "RED")
     )
 
-    if reponse_annee != "y":
+    if year_answer != "y":
         exit("Fin du programme, aucun calendrier n'a été généré")
 
     print(WARNING_EMPLOI_DU_TEMPS)
 
-    # TODO Changer affichage
     pprint(data.content_per_day)
 
-    reponse_edt = input(
+    edt_answer = input(
         color_text(
             color_text(
                 "Voulez-vous continuer ? (y/N) : ",
@@ -500,11 +489,12 @@ def user_input(dates: DataDates):
         )
     )
 
-    if reponse_edt != "y":
+    if edt_answer != "y":
         exit("Fin du programme, aucun calendrier n'a été généré\n")
 
 
 def main():
+    """Main program driving the files creation."""
     print(color_text(WELCOME_BANNER, "DARKCYAN"))
     dates = DataDates().with_args()
     user_input(dates)
