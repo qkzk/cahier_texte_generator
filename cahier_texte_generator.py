@@ -170,7 +170,7 @@ class CahierTexteCreator:
             current_year = current_year + 1
         return current_year
 
-    def format_dates(self, list_days: list):
+    def format_dates(self, list_days: list) -> list[str]:
         return list(map(self.format_string_jour, list_days))
 
     def format_file_content(self, sem: int, list_string_day: list) -> str:
@@ -217,7 +217,7 @@ class CahierTexteCreator:
 
         return f"{day_of_the_week} {day_number} {month}"
 
-    def create_md_filepath(self, period_nb_param: int, week_number: int):
+    def create_md_filepath(self, period_nb_param: int, week_number: int) -> str:
         """Returns the correct filepath for a given period and weeknumber"""
         # 0 ---> ./calendrier/periode_1
         path = self.pathes.default_path_md + str(period_nb_param + 1)
@@ -317,14 +317,14 @@ class CahierTexteCreator:
         self.create_period_md_files(week_start_period, week_end_period, period_index)
         return True
 
-    def populate_period_folders(self):
+    def populate_period_folders(self) -> None:
         """Writes the period folders. Stops as soon as we reach the last possible period."""
         # On peuple les dossiers de période
         for period_index in self.dates.dict_period_ends:
             if not self.populate_a_period(period_index):
                 break
 
-    def create_cahier_texte(self):
+    def create_cahier_texte(self) -> None:
         """
         Fonction principale qui crée les fichiers et les remplit pour chaque
         période et chaque semaine de chaque période.
@@ -374,14 +374,14 @@ class EventsMonthCalendar(HTMLCalendar):
                 return nb_period
         raise ValueError("Invalid day %d", day)
 
-    def which_week_number(self, day):
+    def which_week_number(self, day) -> int:
         """
         Renvoie le numéro de la semaine correspondante
         """
         theday = self.which_day(day)
         return theday.isocalendar()[1]
 
-    def formatURL(self, nb_period, nb_week):
+    def formatURL(self, nb_period, nb_week) -> str:
         """
         Formate une url pour atteindre mon repo
 
@@ -393,7 +393,7 @@ class EventsMonthCalendar(HTMLCalendar):
         )
         return self.START_URL + middle_url + self.END_URL
 
-    def formatday(self, day: int, weekday: int):
+    def formatday(self, day: int, weekday: int) -> str:
         """
         Return a day as a table cell.
         """
@@ -417,7 +417,7 @@ class LinkCalendar:
         self.dates = dates
         self.pathes = pathes
 
-    def generate_months(self):
+    def generate_months(self) -> str:
         """
         Génère du contenu HTML dans une string
         Pour être affiché dans github
@@ -439,7 +439,7 @@ class LinkCalendar:
 
         return html_string
 
-    def write_html_months(self):
+    def write_html_months(self) -> None:
         """
         Écrit le fichier README.md avec le contenu HTML à l'adresse :
         ./calendrier/2019/README.md
@@ -457,12 +457,12 @@ class LinkCalendar:
         print(file_path)
 
 
-def color_text(text, color="BOLD"):
+def color_text(text: str, color: str = "BOLD") -> str:
     """Encapsulate a text with ANSI escape chars for color printing in a terminal."""
     return TEXT_COLORS[color] + text + TEXT_COLORS["END"]
 
 
-def user_input(dates: DataDates):
+def user_input(dates: DataDates) -> None:
     """Reads the user input and exit if the user asks to."""
     print(WARNING_PERIODS_YEAR.format(dates.year))
 
@@ -493,7 +493,7 @@ def user_input(dates: DataDates):
         exit("Fin du programme, aucun calendrier n'a été généré\n")
 
 
-def main():
+def main() -> None:
     """Main program driving the files creation."""
     print(color_text(WELCOME_BANNER, "DARKCYAN"))
     dates = DataDates().with_args()
