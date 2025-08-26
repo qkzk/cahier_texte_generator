@@ -28,12 +28,20 @@ content_per_day = {}
 content_per_day[
     0
 ] = """
+- 8h00-9h55 - 213 - 1NSI 2
+- 10h00-11h50 - 213 - TNSI
+- 11h50-12h45 - 307 - 2nde 8
+- 13h40-15h30 - 213 - 1NSI 1
 """
 
 # mardi
 content_per_day[
     1
 ] = """
+- 8h00-8h55 - ??? - 2nde 8 G1
+- 8h55-9h50 - 107 - 2nde 8 G2
+- 10h00-10h55 - 307 - 2nde 8
+- 13h40-15h30 - 213 - TNSI
 """
 
 # mercredi
@@ -46,12 +54,16 @@ content_per_day[
 content_per_day[
     3
 ] = """
+- 8h00-9h50 - 213 - 1NSI 1
+- 10h00-11h50 - 213 - 1NSI 2
 """
 
 # vendredi
 content_per_day[
     4
 ] = """
+- 10h00-11h50 - 213 - TNSI
+- 11h50-12h45 - 307 - 2nde8
 """
 
 # samedi
